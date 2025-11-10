@@ -1,27 +1,43 @@
-const API_URL = "http://192.168.0.10:8000"; // tu IP local o dominio :)
+import { API_URL } from "@env";
 
-export const registerUser = async (userData) => {
-  const res = await fetch(`${API_URL}/auth/register`, {
+async function apiFetch(path, options = {}) {
+  const url = `${API_URL}${path}`;
+  const defaultHeaders = { "Content-Type": "application/json" };
+  options.headers = { ...defaultHeaders, ...(options.headers || {}) };
+
+  try {
+    const res = await fetch(url, options);
+    const text = await res.text(); // leer cuerpo crudo
+    const data = text ? JSON.parse(text) : null; // evitar error si cuerpo vacío
+
+    if (!res.ok) {
+      // Normalizar error: incluir código y mensaje
+      throw { status: res.status, data };
+    }
+    return data;
+  } catch (err) {
+    // Lanzar un error consistente para el consumidor
+    if (err instanceof SyntaxError) {
+      throw { message: "Respuesta no es JSON", original: err };
+    }
+    throw err;
+  }
+}
+
+export const registerUser = (userData) =>
+  apiFetch("/auth/register", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
   });
-  return res.json();
-};
 
-export const loginUser = async (loginData) => {
-  const res = await fetch(`${API_URL}/auth/login`, {
+export const loginUser = (loginData) =>
+  apiFetch("/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(loginData),
   });
-  return res.json();
-};
 
-export const getProfile = async (token) => {
-  const res = await fetch(`${API_URL}/auth/me`, {
+export const getProfile = (token) =>
+  apiFetch("/auth/me", {
     method: "GET",
     headers: { Authorization: `Bearer ${token}` },
   });
-  return res.json();
-};
