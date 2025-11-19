@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet
+} from "react-native";
 import { fetchNews } from "../config/newsApi";
 
 export default function NewsListScreen({ navigation }) {
@@ -47,17 +55,61 @@ export default function NewsListScreen({ navigation }) {
   );
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: "#fff" }}>
-      <FlatList
-        data={news}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
-        onEndReached={loadNews}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          loading ? <ActivityIndicator style={{ marginVertical: 16 }} /> : null
-        }
-      />
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, padding: 16, backgroundColor: "#fff" }}>
+        <FlatList
+          data={news}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          onEndReached={loadNews}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            loading ? <ActivityIndicator style={{ marginVertical: 16 }} /> : null
+          }
+          contentContainerStyle={{ paddingBottom: 100 }}
+        />
+      </View>
+
+      {/* BARRA INFERIOR */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity
+          style={styles.tabButton}
+          onPress={() => navigation.navigate("Home")}
+        >
+          <Text style={styles.tabLabel}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.tabButton}
+          onPress={() => navigation.navigate("News")}
+        >
+          <Text style={styles.tabLabel}>Noticias</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  bottomBar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderColor: "#ccc",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0
+  },
+  tabButton: {
+    padding: 8
+  },
+  tabLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#007aff"
+  }
+});
